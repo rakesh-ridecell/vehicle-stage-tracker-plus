@@ -17,10 +17,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight, MoreHorizontal, Search } from "lucide-react";
+import { ChevronDown, ChevronRight, MoreHorizontal, Search, FileDown, Edit, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import SupplierDataDetails from "./SupplierDataDetails";
 import VehicleDetails from "./VehicleDetails";
+import EditMovementModal from "./EditMovementModal";
 
 interface VehicleMovementTableProps {
   data: VehicleMovement[];
@@ -30,10 +31,12 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [vehicleMovements, setVehicleMovements] = useState<VehicleMovement[]>(data);
+  const [editingMovement, setEditingMovement] = useState<VehicleMovement | null>(null);
   const rowsPerPage = 10;
 
   // Filter data based on search query
-  const filteredData = data.filter((item) => {
+  const filteredData = vehicleMovements.filter((item) => {
     const searchLower = searchQuery.toLowerCase();
     return (
       item.licensePlate.toLowerCase().includes(searchLower) ||
@@ -60,10 +63,24 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
     setCurrentPage(page);
   };
 
+  // Handle editing movement
+  const handleEditMovement = (movement: VehicleMovement) => {
+    setEditingMovement(movement);
+  };
+
+  // Handle saving edited movement
+  const handleSaveMovement = (updatedMovement: VehicleMovement) => {
+    setVehicleMovements(prevMovements => 
+      prevMovements.map(movement => 
+        movement.id === updatedMovement.id ? updatedMovement : movement
+      )
+    );
+  };
+
   const getActionColor = (action: string) => {
     switch (action) {
       case "Create":
-        return "bg-green-100 text-green-800";
+        return "bg-[#d6f3d2] text-[#3CB72E]";
       case "Update":
         return "bg-blue-100 text-blue-800";
       case "Delete":
@@ -154,9 +171,24 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit Movement</DropdownMenuItem>
-                          <DropdownMenuItem>Download Data</DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            toggleRowExpansion(item.id);
+                          }}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditMovement(item);
+                          }}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Movement
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <FileDown className="mr-2 h-4 w-4" />
+                            Download Data
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -209,6 +241,7 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
                 variant={currentPage === page ? "default" : "outline"}
                 size="sm"
                 onClick={() => handlePageChange(page)}
+                className={currentPage === page ? "bg-[#3CB72E] hover:bg-[#2a9d1f]" : ""}
               >
                 {page}
               </Button>
@@ -223,6 +256,15 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
             </Button>
           </div>
         </div>
+      )}
+
+      {editingMovement && (
+        <EditMovementModal 
+          vehicleMovement={editingMovement}
+          open={!!editingMovement}
+          onOpenChange={(open) => !open && setEditingMovement(null)}
+          onSave={handleSaveMovement}
+        />
       )}
     </div>
   );

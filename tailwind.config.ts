@@ -69,7 +69,8 @@ export default {
                     silver: '#94a3b8',
                     red: '#dc2626',
                     dark: '#1e293b',
-                    light: '#f8fafc'
+                    light: '#f8fafc',
+                    green: '#3CB72E'  // Added the requested accent color
                 }
 			},
 			borderRadius: {
