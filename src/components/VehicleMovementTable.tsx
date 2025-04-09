@@ -17,11 +17,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight, MoreHorizontal, Search, FileDown, Edit, Eye } from "lucide-react";
+import { ChevronDown, ChevronRight, MoreHorizontal, Search, FileDown, Edit, Eye, History } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import SupplierDataDetails from "./SupplierDataDetails";
 import VehicleDetails from "./VehicleDetails";
 import EditMovementModal from "./EditMovementModal";
+import VehicleHistoryModal from "./VehicleHistoryModal";
 
 interface VehicleMovementTableProps {
   data: VehicleMovement[];
@@ -33,6 +34,7 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
   const [currentPage, setCurrentPage] = useState(1);
   const [vehicleMovements, setVehicleMovements] = useState<VehicleMovement[]>(data);
   const [editingMovement, setEditingMovement] = useState<VehicleMovement | null>(null);
+  const [viewingHistory, setViewingHistory] = useState<{vin: string; licensePlate: string} | null>(null);
   const rowsPerPage = 10;
 
   // Filter data based on search query
@@ -66,6 +68,16 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
   // Handle editing movement
   const handleEditMovement = (movement: VehicleMovement) => {
     setEditingMovement(movement);
+  };
+
+  // Handle viewing history
+  const handleViewHistory = (vehicle: {vin: string; licensePlate: string}) => {
+    setViewingHistory(vehicle);
+  };
+
+  // Get vehicle history data
+  const getVehicleHistory = (vin: string): VehicleMovement[] => {
+    return vehicleMovements.filter(movement => movement.vin === vin);
   };
 
   // Handle saving edited movement
@@ -180,6 +192,13 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={(e) => {
                             e.stopPropagation();
+                            handleViewHistory({ vin: item.vin, licensePlate: item.licensePlate });
+                          }}>
+                            <History className="mr-2 h-4 w-4" />
+                            View History
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
                             handleEditMovement(item);
                           }}>
                             <Edit className="mr-2 h-4 w-4" />
@@ -264,6 +283,15 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
           open={!!editingMovement}
           onOpenChange={(open) => !open && setEditingMovement(null)}
           onSave={handleSaveMovement}
+        />
+      )}
+
+      {viewingHistory && (
+        <VehicleHistoryModal
+          open={!!viewingHistory}
+          onOpenChange={(open) => !open && setViewingHistory(null)}
+          vehicleData={viewingHistory}
+          historyData={getVehicleHistory(viewingHistory.vin)}
         />
       )}
     </div>

@@ -30,6 +30,30 @@ const Index = () => {
     setFilter(newFilter);
   };
 
+  // Apply filter to vehicle movements
+  const getFilteredVehicleMovements = () => {
+    if (filter === "all") return vehicleMovements;
+    
+    const now = new Date();
+    
+    return vehicleMovements.filter(movement => {
+      const moveDate = new Date(movement.movementDate);
+      const timeDiff = now.getTime() - moveDate.getTime();
+      const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+      
+      switch (filter) {
+        case "today":
+          return daysDiff === 0;
+        case "week":
+          return daysDiff <= 7;
+        case "month":
+          return daysDiff <= 30;
+        default:
+          return true;
+      }
+    });
+  };
+
   return (
     <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 max-w-7xl">
       <div className="space-y-6">
@@ -46,7 +70,7 @@ const Index = () => {
             </div>
           </div>
         ) : (
-          <VehicleMovementTable data={vehicleMovements} />
+          <VehicleMovementTable data={getFilteredVehicleMovements()} />
         )}
       </div>
     </div>

@@ -1,8 +1,13 @@
 
 import React from "react";
-import { Car, FileBarChart, Filter } from "lucide-react";
+import { Car, FileBarChart, Filter, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 interface DashboardHeaderProps {
   totalCount: number;
@@ -21,6 +26,25 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ totalCount, onFilterC
         </p>
       </div>
       <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
+        <HoverCard>
+          <HoverCardTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="sm:w-[130px] border-[#3CB72E]/30 text-[#3CB72E] hover:bg-[#3CB72E]/10"
+            >
+              <History className="mr-2 h-4 w-4" /> History
+            </Button>
+          </HoverCardTrigger>
+          <HoverCardContent className="w-80">
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold">Vehicle History</h4>
+              <p className="text-sm text-muted-foreground">
+                View the complete movement history for each vehicle across its lifecycle. 
+                Select a vehicle from the table and click "View History" to see its full transition timeline.
+              </p>
+            </div>
+          </HoverCardContent>
+        </HoverCard>
         <Select defaultValue="all" onValueChange={onFilterChange}>
           <SelectTrigger className="w-full sm:w-[180px] border-[#3CB72E]/30">
             <Filter className="mr-2 h-4 w-4 text-[#3CB72E]" />
