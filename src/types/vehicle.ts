@@ -15,6 +15,33 @@ export interface VehicleMovement {
   supplierData?: SupplierData;
 }
 
+// Vehicle stages
+export type VehicleStage = 
+  | 'Source In'
+  | 'Fleet In' 
+  | 'Contract In'
+  | 'Active Contract'
+  | 'Contract Out'
+  | 'First Contract with Driver'
+  | 'Confirm Appointment with Driver'
+  | 'Transport to Storage'
+  | 'Storage In'
+  | 'Inspection'
+  | 'Expertise'
+  | 'Damage Assessment'
+  | 'Contract Settlement'
+  | 'Listing for Sale'
+  | 'Assigned'
+  | 'Released'
+  | 'Buyer Pick Up'
+  | 'Defleeted'
+  | 'Prep'
+  | 'Ready'
+  | 'Delivered'
+  | 'Service'
+  | 'Sold'
+  | 'Archived';
+
 // Combined supplier data
 export interface SupplierData {
   supplier1?: Supplier1Data;

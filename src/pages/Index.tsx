@@ -17,7 +17,7 @@ const Index = () => {
       
       // Small timeout to simulate API call
       setTimeout(() => {
-        const data = getMockVehicleMovements(50);
+        const data = getMockVehicleMovements(15); // Generate fewer vehicles but with more movements each
         setVehicleMovements(data);
         setIsLoading(false);
       }, 800);

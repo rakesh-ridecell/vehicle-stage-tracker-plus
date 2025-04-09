@@ -1,5 +1,4 @@
-
-import { VehicleMovement } from "@/types/vehicle";
+import { VehicleMovement, VehicleStage } from "@/types/vehicle";
 
 // Generate random date within the last 30 days
 const getRandomDate = () => {
@@ -15,20 +14,49 @@ const getRandomAction = () => {
   return actions[Math.floor(Math.random() * actions.length)];
 };
 
-// Generate random stage
-const getRandomStage = () => {
-  const stages = [
-    'Ordered', 
-    'In Transit', 
-    'Received', 
-    'Prep', 
-    'Ready', 
-    'Delivered', 
-    'Service', 
-    'Sold', 
-    'Archived'
-  ];
-  return stages[Math.floor(Math.random() * stages.length)];
+// Define vehicle lifecycle stages in order
+const vehicleLifecycleStages: VehicleStage[] = [
+  'Source In',
+  'Fleet In',
+  'Contract In',
+  'Active Contract',
+  'Contract Out',
+  'First Contract with Driver',
+  'Confirm Appointment with Driver',
+  'Transport to Storage',
+  'Storage In',
+  'Inspection',
+  'Expertise',
+  'Damage Assessment',
+  'Contract Settlement',
+  'Listing for Sale',
+  'Assigned',
+  'Released',
+  'Buyer Pick Up',
+  'Defleeted',
+  'Archived'
+];
+
+// Generate a sequence of stages that a vehicle might go through
+const generateStageSequence = (): VehicleStage[] => {
+  // Start with Source In
+  const result: VehicleStage[] = ['Source In'];
+  
+  // Randomly select 3-8 stages from the lifecycle
+  const numStages = 3 + Math.floor(Math.random() * 6);
+  let currentIndex = 0;
+  
+  for (let i = 0; i < numStages; i++) {
+    // Move forward between 1-3 stages at a time
+    currentIndex += 1 + Math.floor(Math.random() * 3);
+    
+    // Don't go past the end
+    if (currentIndex >= vehicleLifecycleStages.length) break;
+    
+    result.push(vehicleLifecycleStages[currentIndex]);
+  }
+  
+  return result;
 };
 
 // Generate VIN that looks realistic
@@ -115,39 +143,65 @@ const generateSupplierData = () => {
   };
 };
 
-// Generate a single vehicle movement record
-const generateVehicleMovement = (id: number): VehicleMovement => {
-  const sourceStage = getRandomStage();
-  let targetStage = getRandomStage();
+// Generate vehicle movements for a single vehicle through its lifecycle
+const generateVehicleLifecycleMovements = (id: number): VehicleMovement[] => {
+  const vin = generateVIN();
+  const licensePlate = generateLicensePlate();
+  const contractNumber = generateContractNumber();
   
-  // Make sure target is different from source
-  while (targetStage === sourceStage) {
-    targetStage = getRandomStage();
+  // Generate a sequence of stages for this vehicle
+  const stages = generateStageSequence();
+  
+  // Base date (30-90 days ago)
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - (30 + Math.floor(Math.random() * 60)));
+  
+  // Generate movements for each stage transition
+  const movements: VehicleMovement[] = [];
+  
+  for (let i = 0; i < stages.length - 1; i++) {
+    const sourceStage = stages[i];
+    const targetStage = stages[i + 1];
+    
+    // Move forward in time by 1-7 days for each stage
+    startDate.setDate(startDate.getDate() + (1 + Math.floor(Math.random() * 6)));
+    const movementDate = startDate.toISOString().split('T')[0];
+    
+    // Execution date is usually on the same day or 1-2 days before
+    const executionDate = new Date(startDate);
+    executionDate.setDate(executionDate.getDate() - Math.floor(Math.random() * 3));
+    
+    movements.push({
+      id: `MOV-${id}-${i + 1}`,
+      licensePlate,
+      vin,
+      contractNumber,
+      sourceStage,
+      targetStage,
+      movementDate,
+      action: 'Update',
+      comment: Math.random() > 0.7 ? `Movement from ${sourceStage} to ${targetStage}` : '',
+      executionDate: executionDate.toISOString().split('T')[0],
+      executedBy: generateEmail(),
+      supplierData: generateSupplierData()
+    });
   }
   
-  const movementDate = getRandomDate();
-  const executionDate = new Date(movementDate);
-  
-  // Execution is usually on same day or 1-2 days before
-  executionDate.setDate(executionDate.getDate() - Math.floor(Math.random() * 3));
-  
-  return {
-    id: `MOV-${id.toString().padStart(5, '0')}`,
-    licensePlate: generateLicensePlate(),
-    vin: generateVIN(),
-    contractNumber: generateContractNumber(),
-    sourceStage,
-    targetStage,
-    movementDate,
-    action: getRandomAction(),
-    comment: Math.random() > 0.7 ? `Movement from ${sourceStage} to ${targetStage}` : '',
-    executionDate: executionDate.toISOString().split('T')[0],
-    executedBy: generateEmail(),
-    supplierData: generateSupplierData()
-  };
+  return movements;
 };
 
-// Generate mock data
-export const getMockVehicleMovements = (count = 50): VehicleMovement[] => {
-  return Array.from({ length: count }, (_, i) => generateVehicleMovement(i + 1));
+// Generate mock data with vehicle lifecycles
+export const getMockVehicleMovements = (count = 15): VehicleMovement[] => {
+  const result: VehicleMovement[] = [];
+  
+  // Generate movements for 'count' different vehicles
+  for (let i = 0; i < count; i++) {
+    const vehicleMovements = generateVehicleLifecycleMovements(i + 1);
+    result.push(...vehicleMovements);
+  }
+  
+  // Sort by most recent first for display
+  return result.sort((a, b) => 
+    new Date(b.movementDate).getTime() - new Date(a.movementDate).getTime()
+  );
 };
