@@ -4,6 +4,7 @@ import { getMockVehicleMovements } from "@/services/mockDataService";
 import { VehicleMovement } from "@/types/vehicle";
 import VehicleMovementTable from "@/components/VehicleMovementTable";
 import DashboardHeader from "@/components/DashboardHeader";
+import { Container, Box, CircularProgress, Typography } from "@mui/material";
 
 const Index = () => {
   const [vehicleMovements, setVehicleMovements] = useState<VehicleMovement[]>([]);
@@ -55,25 +56,30 @@ const Index = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 max-w-7xl">
-      <div className="space-y-6">
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         <DashboardHeader 
           totalCount={vehicleMovements.length} 
           onFilterChange={handleFilterChange}
         />
         
         {isLoading ? (
-          <div className="flex items-center justify-center h-[60vh]">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="h-12 w-12 rounded-full border-4 border-[#3CB72E] border-t-transparent animate-spin"></div>
-              <p className="text-muted-foreground">Loading vehicle data...</p>
-            </div>
-          </div>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            height: '60vh', 
+            flexDirection: 'column', 
+            gap: 2 
+          }}>
+            <CircularProgress color="primary" />
+            <Typography color="text.secondary">Loading vehicle data...</Typography>
+          </Box>
         ) : (
           <VehicleMovementTable data={getFilteredVehicleMovements()} />
         )}
-      </div>
-    </div>
+      </Box>
+    </Container>
   );
 };
 

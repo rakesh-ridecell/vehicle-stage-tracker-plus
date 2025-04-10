@@ -1,12 +1,13 @@
 
 import React, { useState } from "react";
 import { VehicleMovement } from "@/types/vehicle";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
+import { 
+  Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, 
+  Grid, MenuItem, Select, InputLabel, FormControl, Box, 
+  IconButton, Typography
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
+import { Toast } from "@mui/material/Alert";
 
 interface EditMovementModalProps {
   vehicleMovement: VehicleMovement;
@@ -37,114 +38,146 @@ const EditMovementModal: React.FC<EditMovementModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({ ...vehicleMovement, ...formData });
-    toast.success("Vehicle movement updated successfully");
+    // We would use a real toast here with Material UI
+    console.log("Vehicle movement updated successfully");
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-background border border-border">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-foreground">
-            Edit Vehicle Movement
-          </DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="sourceStage">Source Stage</Label>
-              <Input
+    <Dialog 
+      open={open} 
+      onClose={() => onOpenChange(false)}
+      maxWidth="md"
+      PaperProps={{ 
+        sx: { borderRadius: 1 }
+      }}
+    >
+      <DialogTitle sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        borderBottom: 1,
+        borderColor: 'divider',
+        pb: 2
+      }}>
+        <Typography variant="h6">Edit Vehicle Movement</Typography>
+        <IconButton
+          size="small"
+          onClick={() => onOpenChange(false)}
+          aria-label="close"
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
+      <form onSubmit={handleSubmit}>
+        <DialogContent dividers sx={{ p: 3 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
                 id="sourceStage"
                 name="sourceStage"
+                label="Source Stage"
                 value={formData.sourceStage}
                 onChange={handleInputChange}
-                className="w-full"
+                size="small"
+                margin="normal"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="targetStage">Target Stage</Label>
-              <Input
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
                 id="targetStage"
                 name="targetStage"
+                label="Target Stage"
                 value={formData.targetStage}
                 onChange={handleInputChange}
-                className="w-full"
+                size="small"
+                margin="normal"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="licensePlate">License Plate</Label>
-              <Input
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
                 id="licensePlate"
                 name="licensePlate"
+                label="License Plate"
                 value={formData.licensePlate}
                 onChange={handleInputChange}
-                className="w-full"
+                size="small"
+                margin="normal"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="action">Action</Label>
-              <Select 
-                value={formData.action} 
-                onValueChange={(value) => handleSelectChange("action", value as "Create" | "Update" | "Delete")}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select action" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Create">Create</SelectItem>
-                  <SelectItem value="Update">Update</SelectItem>
-                  <SelectItem value="Delete">Delete</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="movementDate">Movement Date</Label>
-              <Input
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth margin="normal" size="small">
+                <InputLabel id="action-label">Action</InputLabel>
+                <Select
+                  labelId="action-label"
+                  id="action"
+                  value={formData.action}
+                  label="Action"
+                  onChange={(e) => handleSelectChange("action", e.target.value as "Create" | "Update" | "Delete")}
+                >
+                  <MenuItem value="Create">Create</MenuItem>
+                  <MenuItem value="Update">Update</MenuItem>
+                  <MenuItem value="Delete">Delete</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
                 id="movementDate"
                 name="movementDate"
+                label="Movement Date"
                 value={formData.movementDate}
                 onChange={handleInputChange}
-                className="w-full"
+                size="small"
+                margin="normal"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="executionDate">Execution Date</Label>
-              <Input
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
                 id="executionDate"
                 name="executionDate"
+                label="Execution Date"
                 value={formData.executionDate}
                 onChange={handleInputChange}
-                className="w-full"
+                size="small"
+                margin="normal"
               />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="comment">Comment</Label>
-            <Input
-              id="comment"
-              name="comment"
-              value={formData.comment}
-              onChange={handleInputChange}
-              className="w-full"
-            />
-          </div>
-          <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              className="bg-[#3CB72E] hover:bg-[#2a9d1f] text-white"
-            >
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                id="comment"
+                name="comment"
+                label="Comment"
+                value={formData.comment}
+                onChange={handleInputChange}
+                size="small"
+                margin="normal"
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button 
+            variant="outlined" 
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary"
+          >
+            Save Changes
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 };

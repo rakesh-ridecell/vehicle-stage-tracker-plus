@@ -1,28 +1,19 @@
 
 import React, { useState } from "react";
 import { VehicleMovement } from "@/types/vehicle";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight, MoreHorizontal, Search, FileDown, Edit, Eye, History } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import SupplierDataDetails from "./SupplierDataDetails";
 import VehicleDetails from "./VehicleDetails";
 import EditMovementModal from "./EditMovementModal";
 import VehicleHistoryModal from "./VehicleHistoryModal";
+import { 
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, 
+  IconButton, TextField, Box, Chip, Collapse, Grid, Pagination, Card,
+  Menu, MenuItem, ListItemIcon, ListItemText, InputAdornment
+} from "@mui/material";
+import { 
+  Search, KeyboardArrowDown, KeyboardArrowRight, MoreHoriz,
+  FileDownload, Edit, Visibility, History as HistoryIcon
+} from "@mui/icons-material";
 
 interface VehicleMovementTableProps {
   data: VehicleMovement[];
@@ -35,6 +26,8 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
   const [vehicleMovements, setVehicleMovements] = useState<VehicleMovement[]>(data);
   const [editingMovement, setEditingMovement] = useState<VehicleMovement | null>(null);
   const [viewingHistory, setViewingHistory] = useState<{vin: string; licensePlate: string} | null>(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedMovement, setSelectedMovement] = useState<VehicleMovement | null>(null);
   const rowsPerPage = 10;
 
   // Filter data based on search query
@@ -61,18 +54,38 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
   };
 
   // Handle page change
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
   };
 
+  // Handle context menu
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, movement: VehicleMovement) => {
+    event.stopPropagation();
+    setMenuAnchorEl(event.currentTarget);
+    setSelectedMovement(movement);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
+
   // Handle editing movement
-  const handleEditMovement = (movement: VehicleMovement) => {
-    setEditingMovement(movement);
+  const handleEditMovement = () => {
+    if (selectedMovement) {
+      setEditingMovement(selectedMovement);
+      handleMenuClose();
+    }
   };
 
   // Handle viewing history
-  const handleViewHistory = (vehicle: {vin: string; licensePlate: string}) => {
-    setViewingHistory(vehicle);
+  const handleViewHistory = () => {
+    if (selectedMovement) {
+      setViewingHistory({
+        vin: selectedMovement.vin,
+        licensePlate: selectedMovement.licensePlate
+      });
+      handleMenuClose();
+    }
   };
 
   // Get vehicle history data
@@ -92,51 +105,57 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
   const getActionColor = (action: string) => {
     switch (action) {
       case "Create":
-        return "bg-[#d6f3d2] text-[#3CB72E]";
+        return { bgcolor: 'primary.light', color: 'primary.main' };
       case "Update":
-        return "bg-blue-100 text-blue-800";
+        return { bgcolor: 'info.light', color: 'info.dark' };
       case "Delete":
-        return "bg-red-100 text-red-800";
+        return { bgcolor: 'error.light', color: 'error.dark' };
       default:
-        return "bg-gray-100 text-gray-800";
+        return { bgcolor: 'grey.100', color: 'grey.800' };
     }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search by License Plate, VIN, Contract..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box sx={{ width: '100%' }}>
+        <TextField
+          placeholder="Search by License Plate, VIN, Contract..."
+          variant="outlined"
+          fullWidth
+          size="small"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search fontSize="small" color="action" />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
 
-      <div className="table-container rounded-md border">
-        <Table>
-          <TableHeader>
+      <TableContainer component={Paper} sx={{ borderRadius: 1 }}>
+        <Table size="small">
+          <TableHead>
             <TableRow>
-              <TableHead className="w-9"></TableHead>
-              <TableHead>License Plate</TableHead>
-              <TableHead>VIN</TableHead>
-              <TableHead>Contract #</TableHead>
-              <TableHead>Source Stage</TableHead>
-              <TableHead>Target Stage</TableHead>
-              <TableHead>Movement Date</TableHead>
-              <TableHead>Action</TableHead>
-              <TableHead>Execution Date</TableHead>
-              <TableHead>Executed By</TableHead>
-              <TableHead className="w-9"></TableHead>
+              <TableCell padding="checkbox" width={48}></TableCell>
+              <TableCell>License Plate</TableCell>
+              <TableCell>VIN</TableCell>
+              <TableCell>Contract #</TableCell>
+              <TableCell>Source Stage</TableCell>
+              <TableCell>Target Stage</TableCell>
+              <TableCell>Movement Date</TableCell>
+              <TableCell>Action</TableCell>
+              <TableCell>Execution Date</TableCell>
+              <TableCell>Executed By</TableCell>
+              <TableCell padding="checkbox" width={48}></TableCell>
             </TableRow>
-          </TableHeader>
+          </TableHead>
           <TableBody>
             {paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={11} className="text-center py-6 text-muted-foreground">
+                <TableCell colSpan={11} align="center" sx={{ py: 3, color: 'text.secondary' }}>
                   No vehicle movements found
                 </TableCell>
               </TableRow>
@@ -144,138 +163,141 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
               paginatedData.map((item) => (
                 <React.Fragment key={item.id}>
                   <TableRow 
-                    className={expandedRow === item.id ? "bg-muted/40" : ""}
+                    hover
                     onClick={() => toggleRowExpansion(item.id)}
+                    sx={{ 
+                      '&.MuiTableRow-root': {
+                        bgcolor: expandedRow === item.id ? 'action.hover' : 'inherit'
+                      },
+                      cursor: 'pointer'
+                    }}
                   >
-                    <TableCell className="p-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <TableCell padding="checkbox">
+                      <IconButton size="small">
                         {expandedRow === item.id ? (
-                          <ChevronDown className="h-4 w-4" />
+                          <KeyboardArrowDown fontSize="small" />
                         ) : (
-                          <ChevronRight className="h-4 w-4" />
+                          <KeyboardArrowRight fontSize="small" />
                         )}
-                      </Button>
+                      </IconButton>
                     </TableCell>
-                    <TableCell className="font-medium">{item.licensePlate}</TableCell>
+                    <TableCell sx={{ fontWeight: 'medium' }}>{item.licensePlate}</TableCell>
                     <TableCell>{item.vin}</TableCell>
                     <TableCell>{item.contractNumber}</TableCell>
                     <TableCell>{item.sourceStage}</TableCell>
                     <TableCell>{item.targetStage}</TableCell>
                     <TableCell>{item.movementDate}</TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getActionColor(item.action)}`}>
-                        {item.action}
-                      </span>
+                      <Chip 
+                        label={item.action}
+                        size="small"
+                        sx={{ 
+                          ...getActionColor(item.action),
+                          fontSize: '0.75rem',
+                          fontWeight: 'medium'
+                        }}
+                      />
                     </TableCell>
                     <TableCell>{item.executionDate}</TableCell>
                     <TableCell>{item.executedBy}</TableCell>
-                    <TableCell className="p-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            toggleRowExpansion(item.id);
-                          }}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewHistory({ vin: item.vin, licensePlate: item.licensePlate });
-                          }}>
-                            <History className="mr-2 h-4 w-4" />
-                            View History
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditMovement(item);
-                          }}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Movement
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FileDown className="mr-2 h-4 w-4" />
-                            Download Data
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    <TableCell padding="checkbox">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => handleMenuOpen(e, item)}
+                      >
+                        <MoreHoriz fontSize="small" />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
-                  {expandedRow === item.id && (
-                    <TableRow>
-                      <TableCell colSpan={11} className="p-0 bg-muted/20">
-                        <div className="p-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Card>
-                              <CardContent className="p-4">
+                  <TableRow>
+                    <TableCell
+                      style={{ paddingBottom: 0, paddingTop: 0 }}
+                      colSpan={11}
+                    >
+                      <Collapse in={expandedRow === item.id} timeout="auto" unmountOnExit>
+                        <Box sx={{ py: 2, px: 3, bgcolor: 'action.hover' }}>
+                          <Grid container spacing={2}>
+                            <Grid item xs={12} md={6}>
+                              <Card variant="outlined" sx={{ p: 2 }}>
                                 <VehicleDetails vehicleMovement={item} />
-                              </CardContent>
-                            </Card>
-                            <Card>
-                              <CardContent className="p-4">
+                              </Card>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                              <Card variant="outlined" sx={{ p: 2 }}>
                                 <SupplierDataDetails supplierData={item.supplierData} />
-                              </CardContent>
-                            </Card>
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
+                              </Card>
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      </Collapse>
+                    </TableCell>
+                  </TableRow>
                 </React.Fragment>
               ))
             )}
           </TableBody>
         </Table>
-      </div>
+      </TableContainer>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mt: 2 
+        }}>
+          <Box sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
             Showing {startIndex + 1}-{Math.min(startIndex + rowsPerPage, filteredData.length)} of{" "}
             {filteredData.length} entries
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Button
-                key={page}
-                variant={currentPage === page ? "default" : "outline"}
-                size="sm"
-                onClick={() => handlePageChange(page)}
-                className={currentPage === page ? "bg-[#3CB72E] hover:bg-[#2a9d1f]" : ""}
-              >
-                {page}
-              </Button>
-            ))}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
+          </Box>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+            shape="rounded"
+          />
+        </Box>
       )}
+
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={Boolean(menuAnchorEl)}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <MenuItem onClick={() => { toggleRowExpansion(selectedMovement?.id || ''); handleMenuClose(); }}>
+          <ListItemIcon>
+            <Visibility fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>View Details</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleViewHistory}>
+          <ListItemIcon>
+            <HistoryIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>View History</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleEditMovement}>
+          <ListItemIcon>
+            <Edit fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Edit Movement</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleMenuClose}>
+          <ListItemIcon>
+            <FileDownload fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Download Data</ListItemText>
+        </MenuItem>
+      </Menu>
 
       {editingMovement && (
         <EditMovementModal 
@@ -294,7 +316,7 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
           historyData={getVehicleHistory(viewingHistory.vin)}
         />
       )}
-    </div>
+    </Box>
   );
 };
 

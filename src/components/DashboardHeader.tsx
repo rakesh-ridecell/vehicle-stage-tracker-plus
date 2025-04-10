@@ -1,13 +1,7 @@
 
 import React from "react";
-import { Car, FileBarChart, Filter, History } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import { Box, Typography, Button, Select, MenuItem, FormControl, InputLabel, Tooltip, Paper } from "@mui/material";
+import { DirectionsCar, FileDownload, FilterList, History as HistoryIcon } from "@mui/icons-material";
 
 interface DashboardHeaderProps {
   totalCount: number;
@@ -15,56 +9,93 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ totalCount, onFilterChange }) => {
+  const handleFilterChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    if (onFilterChange) {
+      onFilterChange(event.target.value as string);
+    }
+  };
+
   return (
-    <div className="flex flex-col space-y-2 md:flex-row md:items-center md:justify-between md:space-y-0">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Car className="h-6 w-6 text-[#3CB72E]" /> Vehicle Stage Tracker
-        </h1>
-        <p className="text-muted-foreground">
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: { xs: 'column', md: 'row' }, 
+      alignItems: { xs: 'flex-start', md: 'center' }, 
+      justifyContent: 'space-between',
+      gap: { xs: 2, md: 0 }
+    }}>
+      <Box>
+        <Typography variant="h1" sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 1, 
+          fontWeight: 'bold',
+          mb: 0.5
+        }}>
+          <DirectionsCar sx={{ color: 'primary.main' }} /> 
+          Vehicle Stage Tracker
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
           Tracking {totalCount} vehicle stage movements
-        </p>
-      </div>
-      <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
-        <HoverCard>
-          <HoverCardTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="sm:w-[130px] border-[#3CB72E]/30 text-[#3CB72E] hover:bg-[#3CB72E]/10"
-            >
-              <History className="mr-2 h-4 w-4" /> History
-            </Button>
-          </HoverCardTrigger>
-          <HoverCardContent className="w-80">
-            <div className="space-y-2">
-              <h4 className="text-sm font-semibold">Vehicle History</h4>
-              <p className="text-sm text-muted-foreground">
-                View the complete movement history for each vehicle across its lifecycle. 
-                Select a vehicle from the table and click "View History" to see its full transition timeline.
-              </p>
-            </div>
-          </HoverCardContent>
-        </HoverCard>
-        <Select defaultValue="all" onValueChange={onFilterChange}>
-          <SelectTrigger className="w-full sm:w-[180px] border-[#3CB72E]/30">
-            <Filter className="mr-2 h-4 w-4 text-[#3CB72E]" />
-            <SelectValue placeholder="Filter by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Movements</SelectItem>
-            <SelectItem value="today">Today Only</SelectItem>
-            <SelectItem value="week">Last 7 Days</SelectItem>
-            <SelectItem value="month">Last 30 Days</SelectItem>
-          </SelectContent>
-        </Select>
+        </Typography>
+      </Box>
+      
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' }, 
+        gap: 1 
+      }}>
+        <Tooltip title="View the complete movement history for each vehicle across its lifecycle">
+          <Button 
+            variant="outlined" 
+            startIcon={<HistoryIcon />}
+            sx={{ 
+              minWidth: { sm: '130px' },
+              color: 'primary.main',
+              borderColor: 'primary.light',
+              '&:hover': { 
+                bgcolor: 'primary.light',
+                borderColor: 'primary.light'
+              }
+            }}
+          >
+            History
+          </Button>
+        </Tooltip>
+        
+        <FormControl variant="outlined" size="small" sx={{ minWidth: { sm: '180px' } }}>
+          <InputLabel id="filter-label">Filter by</InputLabel>
+          <Select
+            labelId="filter-label"
+            id="filter-select"
+            defaultValue="all"
+            label="Filter by"
+            onChange={handleFilterChange as any}
+            startAdornment={<FilterList fontSize="small" color="primary" sx={{ mr: 1 }} />}
+          >
+            <MenuItem value="all">All Movements</MenuItem>
+            <MenuItem value="today">Today Only</MenuItem>
+            <MenuItem value="week">Last 7 Days</MenuItem>
+            <MenuItem value="month">Last 30 Days</MenuItem>
+          </Select>
+        </FormControl>
+        
         <Button 
-          variant="outline" 
-          className="sm:w-[130px] border-[#3CB72E]/30 text-[#3CB72E] hover:bg-[#3CB72E]/10"
+          variant="outlined" 
+          startIcon={<FileDownload />}
+          sx={{ 
+            minWidth: { sm: '130px' },
+            color: 'primary.main',
+            borderColor: 'primary.light',
+            '&:hover': { 
+              bgcolor: 'primary.light',
+              borderColor: 'primary.light'
+            }
+          }}
         >
-          <FileBarChart className="mr-2 h-4 w-4" /> Export Data
+          Export Data
         </Button>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 
