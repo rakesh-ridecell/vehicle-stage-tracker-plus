@@ -26,6 +26,7 @@ import {
   TimelineBody,
 } from "@/components/VehicleHistoryTimeline";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface VehicleHistoryModalProps {
   open: boolean;
@@ -96,7 +97,7 @@ const VehicleHistoryModal: React.FC<VehicleHistoryModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold flex items-center gap-2">
             <Clock className="h-5 w-5 text-[#3CB72E]" />
@@ -109,7 +110,7 @@ const VehicleHistoryModal: React.FC<VehicleHistoryModalProps> = ({
           </div>
         </DialogHeader>
 
-        <Tabs defaultValue="all" className="w-full">
+        <Tabs defaultValue="all" className="w-full flex-1 flex flex-col min-h-0">
           <TabsList className="w-full grid grid-cols-2 md:grid-cols-5 h-auto p-1">
             <TabsTrigger value="all" className="py-2">All History</TabsTrigger>
             {Object.keys(groupedBySupplier).map((supplier) => (
@@ -119,65 +120,13 @@ const VehicleHistoryModal: React.FC<VehicleHistoryModalProps> = ({
             ))}
           </TabsList>
 
-          <TabsContent value="all" className="pt-4">
-            <Timeline>
-              {sortedHistory.map((item, index) => (
-                <TimelineItem key={`${item.id}-${index}`}>
-                  {index !== sortedHistory.length - 1 && <TimelineConnector />}
-                  <TimelineHeader>
-                    <TimelineDot className="bg-[#3CB72E]" />
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                      <span className="font-medium">{item.movementDate}</span>
-                      <span className="hidden sm:inline text-muted-foreground">•</span>
-                      <span>
-                        <Badge className={getActionColor(item.action)}>
-                          {item.action}
-                        </Badge>
-                      </span>
-                      <span className="hidden sm:inline text-muted-foreground">•</span>
-                      <span className="text-sm text-muted-foreground">Source: {getSupplierName(getSupplierKey(item))}</span>
-                    </div>
-                  </TimelineHeader>
-                  <TimelineContent>
-                    <TimelineBody>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Source Stage</p>
-                          <p className="font-medium">{item.sourceStage}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CornerDownRight className="h-4 w-4 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">Target Stage</p>
-                            <p className="font-medium">{item.targetStage}</p>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Executed By</p>
-                          <p className="font-medium">{item.executedBy}</p>
-                        </div>
-                      </div>
-                      {item.comment && (
-                        <div className="mt-2 border-t pt-2">
-                          <p className="text-sm text-muted-foreground">Comment</p>
-                          <p>{item.comment}</p>
-                        </div>
-                      )}
-                    </TimelineBody>
-                  </TimelineContent>
-                </TimelineItem>
-              ))}
-            </Timeline>
-          </TabsContent>
-
-          {Object.entries(groupedBySupplier).map(([supplier, items]) => (
-            <TabsContent key={supplier} value={supplier} className="pt-4">
-              <Timeline>
-                {items
-                  .sort((a, b) => new Date(b.movementDate).getTime() - new Date(a.movementDate).getTime())
-                  .map((item, index) => (
-                    <TimelineItem key={`${supplier}-${item.id}-${index}`}>
-                      {index !== items.length - 1 && <TimelineConnector />}
+          <div className="flex-1 overflow-hidden">
+            <ScrollArea className="h-[calc(90vh-180px)] w-full">
+              <TabsContent value="all" className="pt-4">
+                <Timeline>
+                  {sortedHistory.map((item, index) => (
+                    <TimelineItem key={`${item.id}-${index}`}>
+                      {index !== sortedHistory.length - 1 && <TimelineConnector />}
                       <TimelineHeader>
                         <TimelineDot className="bg-[#3CB72E]" />
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
@@ -188,6 +137,8 @@ const VehicleHistoryModal: React.FC<VehicleHistoryModalProps> = ({
                               {item.action}
                             </Badge>
                           </span>
+                          <span className="hidden sm:inline text-muted-foreground">•</span>
+                          <span className="text-sm text-muted-foreground">Source: {getSupplierName(getSupplierKey(item))}</span>
                         </div>
                       </TimelineHeader>
                       <TimelineContent>
@@ -219,9 +170,63 @@ const VehicleHistoryModal: React.FC<VehicleHistoryModalProps> = ({
                       </TimelineContent>
                     </TimelineItem>
                   ))}
-              </Timeline>
-            </TabsContent>
-          ))}
+                </Timeline>
+              </TabsContent>
+
+              {Object.entries(groupedBySupplier).map(([supplier, items]) => (
+                <TabsContent key={supplier} value={supplier} className="pt-4">
+                  <Timeline>
+                    {items
+                      .sort((a, b) => new Date(b.movementDate).getTime() - new Date(a.movementDate).getTime())
+                      .map((item, index) => (
+                        <TimelineItem key={`${supplier}-${item.id}-${index}`}>
+                          {index !== items.length - 1 && <TimelineConnector />}
+                          <TimelineHeader>
+                            <TimelineDot className="bg-[#3CB72E]" />
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                              <span className="font-medium">{item.movementDate}</span>
+                              <span className="hidden sm:inline text-muted-foreground">•</span>
+                              <span>
+                                <Badge className={getActionColor(item.action)}>
+                                  {item.action}
+                                </Badge>
+                              </span>
+                            </div>
+                          </TimelineHeader>
+                          <TimelineContent>
+                            <TimelineBody>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2">
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Source Stage</p>
+                                  <p className="font-medium">{item.sourceStage}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <CornerDownRight className="h-4 w-4 text-muted-foreground" />
+                                  <div>
+                                    <p className="text-sm text-muted-foreground">Target Stage</p>
+                                    <p className="font-medium">{item.targetStage}</p>
+                                  </div>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Executed By</p>
+                                  <p className="font-medium">{item.executedBy}</p>
+                                </div>
+                              </div>
+                              {item.comment && (
+                                <div className="mt-2 border-t pt-2">
+                                  <p className="text-sm text-muted-foreground">Comment</p>
+                                  <p>{item.comment}</p>
+                                </div>
+                              )}
+                            </TimelineBody>
+                          </TimelineContent>
+                        </TimelineItem>
+                      ))}
+                  </Timeline>
+                </TabsContent>
+              ))}
+            </ScrollArea>
+          </div>
         </Tabs>
 
         <div className="flex justify-end mt-4">
