@@ -217,12 +217,12 @@ const VehicleMovementTable: React.FC<VehicleMovementTableProps> = ({ data }) => 
                       <Collapse in={expandedRow === item.id} timeout="auto" unmountOnExit>
                         <Box sx={{ py: 2, px: 3, bgcolor: 'action.hover' }}>
                           <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6} item>
                               <Card variant="outlined" sx={{ p: 2 }}>
                                 <VehicleDetails vehicleMovement={item} />
                               </Card>
                             </Grid>
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6} item>
                               <Card variant="outlined" sx={{ p: 2 }}>
                                 <SupplierDataDetails supplierData={item.supplierData} />
                               </Card>

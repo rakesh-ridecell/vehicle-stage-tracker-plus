@@ -14,7 +14,8 @@ const TimelineItemRoot = styled(Box)(({ theme }) => ({
   position: 'relative',
 }));
 
-const TimelineConnector = styled(Box)(({ theme }) => ({
+// Renamed the styled components to avoid conflicts with the exported components
+const TimelineConnectorStyled = styled(Box)(({ theme }) => ({
   position: 'absolute',
   left: 14,
   top: 20,
@@ -23,14 +24,14 @@ const TimelineConnector = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.divider,
 }));
 
-const TimelineHeader = styled(Box)(({ theme }) => ({
+const TimelineHeaderStyled = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(1),
   marginBottom: theme.spacing(1),
 }));
 
-const TimelineDot = styled(Box)(({ theme }) => ({
+const TimelineDotStyled = styled(Box)(({ theme }) => ({
   position: 'relative',
   zIndex: 1,
   display: 'flex',
@@ -43,11 +44,11 @@ const TimelineDot = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-const TimelineContent = styled(Box)(({ theme }) => ({
+const TimelineContentStyled = styled(Box)(({ theme }) => ({
   paddingLeft: theme.spacing(5),
 }));
 
-const TimelineBody = styled(Paper)(({ theme }) => ({
+const TimelineBodyStyled = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(1.5),
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.shape.borderRadius,
@@ -89,7 +90,7 @@ interface TimelineConnectorProps {
 
 export const TimelineConnector = React.forwardRef<HTMLDivElement, TimelineConnectorProps>(
   ({ className, ...props }, ref) => (
-    <TimelineConnector ref={ref} className={className} {...props} />
+    <TimelineConnectorStyled ref={ref} className={className} {...props} />
   )
 );
 TimelineConnector.displayName = "TimelineConnector";
@@ -101,9 +102,9 @@ interface TimelineHeaderProps {
 
 export const TimelineHeader = React.forwardRef<HTMLDivElement, TimelineHeaderProps>(
   ({ children, className, ...props }, ref) => (
-    <TimelineHeader ref={ref} className={className} {...props}>
+    <TimelineHeaderStyled ref={ref} className={className} {...props}>
       {children}
-    </TimelineHeader>
+    </TimelineHeaderStyled>
   )
 );
 TimelineHeader.displayName = "TimelineHeader";
@@ -114,7 +115,7 @@ interface TimelineDotProps {
 
 export const TimelineDot = React.forwardRef<HTMLDivElement, TimelineDotProps>(
   ({ className, ...props }, ref) => (
-    <TimelineDot ref={ref} className={className} {...props} />
+    <TimelineDotStyled ref={ref} className={className} {...props} />
   )
 );
 TimelineDot.displayName = "TimelineDot";
@@ -126,9 +127,9 @@ interface TimelineContentProps {
 
 export const TimelineContent = React.forwardRef<HTMLDivElement, TimelineContentProps>(
   ({ children, className, ...props }, ref) => (
-    <TimelineContent ref={ref} className={className} {...props}>
+    <TimelineContentStyled ref={ref} className={className} {...props}>
       {children}
-    </TimelineContent>
+    </TimelineContentStyled>
   )
 );
 TimelineContent.displayName = "TimelineContent";
@@ -140,9 +141,9 @@ interface TimelineBodyProps {
 
 export const TimelineBody = React.forwardRef<HTMLDivElement, TimelineBodyProps>(
   ({ children, className, ...props }, ref) => (
-    <TimelineBody elevation={0} ref={ref} className={className} {...props}>
+    <TimelineBodyStyled elevation={0} ref={ref} className={className} {...props}>
       {children}
-    </TimelineBody>
+    </TimelineBodyStyled>
   )
 );
 TimelineBody.displayName = "TimelineBody";
